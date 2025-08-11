@@ -66,10 +66,94 @@ Os alunos devem simular a alocação dos processos na RAM usando o algoritmo **b
 
 ## Resposta
 
-### 1. Alocação Inicial com Best-Fit
+## **1. Alocação Inicial com Best-Fit**
 
-### 2. Simular Memória Virtual (Paginação)
+### Passo a passo
 
-### 3. Desfragmentação da RAM
+1. **P1 (20 KB)**  
+   - Espaços livres: [0–64] (64 KB livre)  
+   - Escolhe [0–20].  
+   - RAM: `[P1(20)] [livre(44)]`
 
- ### 4. Questões para Reflexão
+2. **P2 (15 KB)**  
+   - Espaços livres: [20–64] (44 KB livre)  
+   - Escolhe [20–35].  
+   - RAM: `[P1(20)] [P2(15)] [livre(29)]`
+
+3. **P3 (25 KB)**  
+   - Espaços livres: [35–64] (29 KB livre)  
+   - Escolhe [35–60].  
+   - RAM: `[P1(20)] [P2(15)] [P3(25)] [livre(4)]`
+
+4. **P4 (10 KB)**  
+   - Espaços livres: [60–64] (4 KB livre) → não cabe.  
+   - Vai para memória virtual (disco).
+
+5. **P5 (18 KB)**  
+   - Espaços livres: [60–64] (4 KB livre) → não cabe.  
+   - Vai para memória virtual (disco).
+
+### Resultado inicial
+
+**RAM (64 KB):**
+```
+[0–20]  P1 (20 KB)
+[20–35] P2 (15 KB)
+[35–60] P3 (25 KB)
+[60–64] Livre (4 KB)
+```
+
+**Memória Virtual (Disco):**
+```
+P4 (10 KB)
+P5 (18 KB)
+```
+
+---
+
+## **2. Simulação da Memória Virtual (Paginação)**
+
+| Processo | Páginas na RAM   | Páginas no Disco         |
+|----------|------------------|--------------------------|
+| P1       | 0–19 KB          | —                        |
+| P2       | 20–34 KB         | —                        |
+| P3       | 35–59 KB         | —                        |
+| P4       | —                | 0–9 KB (no disco)        |
+| P5       | —                | 0–17 KB (no disco)       |
+
+> Representação simplificada: cada processo é tratado como um único bloco, sem subdivisão real em páginas de tamanho fixo.
+
+---
+
+## **3. Desfragmentação da RAM**
+
+### Antes
+```
+[ P1 (20 KB) ][ P2 (15 KB) ][ P3 (25 KB) ][ Livre (4 KB) ]
+```
+
+### Após desfragmentação
+```
+[ P1 (20 KB) ][ P2 (15 KB) ][ P3 (25 KB) ][ Livre (4 KB) ]
+```
+
+- A memória já estava organizada com todo o espaço livre no final.  
+- Espaço livre final = **4 KB** (insuficiente para P4 ou P5).  
+- Nenhum novo processo pode ser alocado após a compactação.
+
+---
+
+## **4. Questões para Reflexão**
+
+1. **Best-fit foi mais eficiente que first-fit ou worst-fit neste cenário?**  
+   - Não. Como a memória começou vazia e os processos foram carregados em sequência, best-fit teve o mesmo resultado que first-fit.  
+   - Worst-fit não seria vantajoso e poderia aumentar a fragmentação interna.
+
+2. **Como a memória virtual evitou um deadlock?**  
+   - Sem memória virtual, P4 e P5 ficariam bloqueados indefinidamente aguardando espaço na RAM.  
+   - A paginação no disco permitiu que o sistema continuasse executando, armazenando processos não alocados na RAM.
+
+3. **Qual o impacto da desfragmentação no desempenho do sistema?**  
+   - Reduz fragmentação externa e pode viabilizar novas alocações.  
+   - Neste caso, não trouxe benefício pois a área livre já estava contígua.  
+   - Em sistemas reais, desfragmentar consome tempo de CPU e movimenta dados na RAM.
